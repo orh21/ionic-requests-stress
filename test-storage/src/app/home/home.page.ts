@@ -16,11 +16,16 @@ export class HomePage {
 
   getUsers() {
     const requests = [];
-    for (let i = 0; i < 40; i++) {
-      requests.push(this.http.get('http://localhost:3000?a=' + i));
+    const TOTAL_REQUESTS = 40;
+    const MAX_REQUESTS = 4;
+    for (let i = 0; i < TOTAL_REQUESTS / MAX_REQUESTS; i++) {
+      const chunk = [];
+      for (let j = 0; j < MAX_REQUESTS; j++) {
+        chunk.push(this.http.get('http://localhost:3000?a=' + (i + 1) * j));
+      }
+      requests.push(forkJoin(chunk));
     }
-
-    forkJoin(requests).subscribe((res) => {
+    concat(...requests).subscribe((res) => {
       console.log('done', res);
     });
   }
